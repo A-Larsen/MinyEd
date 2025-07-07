@@ -10,6 +10,7 @@
 #include "lua5.4/lua.h"
 #include "lua5.4/lauxlib.h"
 #include "lua5.4/lualib.h"
+#include <Lmcons.h>
 
 #define MAX_LINE_LENGTH 80
 #define LINE_SIZE 2048
@@ -25,6 +26,12 @@ typedef struct _Buffer {
     uint32_t current_line;
     char filename[MAX_PATH];
 } Buffer;
+
+typedef struct _UserInfo {
+    char username[UNLEN+1];
+    DWORD username_length;
+    char config_path[MAX_PATH];
+} UserInfo;
 
 enum e_modifiers { M_CONTROL, M_ALT, M_SHIFT, MODIFIERS_COUNT };
 
@@ -70,6 +77,8 @@ void initConsole();
 HANDLE getSTdinHandle();
 Modifier *getModifier(enum e_modifiers);
 void initConfig(void);
+void userInfoInit();
+void setup();
 
 
 #endif // EDITOR_H

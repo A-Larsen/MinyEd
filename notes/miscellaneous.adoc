@@ -33,6 +33,7 @@ files on windows.
 - https://www.guidingtech.com/top-ways-to-force-quit-a-program-on-windows-11/
 - https://www.shellhacks.com/windows-grep-equivalent-cmd-powershell/
 - https://www.youtube.com/watch?v=p5-5uKTVx_w[creating a setup wizard]
+- https://stackoverflow.com/questions/11587426/get-current-username-in-c-on-windows
 
 == Force Killing Program
 

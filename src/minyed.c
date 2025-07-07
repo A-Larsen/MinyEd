@@ -1,18 +1,27 @@
 #include "editor.h"
+/* #include <dirent.h> */
+#include "Shlwapi.h"
+#include <stdio.h>
+
 
 
 int main(int argc, char **argv)
 {     
 
     initConsole();
+    userInfoInit();
     DWORD cNumRead, i;
     INPUT_RECORD irInBuf[128];
 
     printf("\e[1;1H\e[2J"); // clear screen
                             //
+    // on initial lanch create default config
+    /* switch(1) { */
+    /*     case CONFIG_INIT_CANNOT_READ_CONFIG: {setup(); break;} */
+    /* } */
+    /* return 0; */
 
     initConfig();
-
 
 
     if (argc < 2) {

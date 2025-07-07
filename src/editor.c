@@ -6,6 +6,7 @@ static DWORD fdwSaveOldMode;
 static int columns, rows;
 static Buffer *buffers = NULL;
 static Config config;
+static UserInfo userInfo;
 
 static Modifier modifiers[MODIFIERS_COUNT] = {
     [M_CONTROL] =  {.keycode = 17, .isActive = false} ,// control
@@ -17,11 +18,32 @@ Modifier *getModifier(enum e_modifiers i) {
     return &modifiers[i];
 }
 
+void userInfoInit() {
+    userInfo.username_length = UNLEN + 1;
+    GetUserName(userInfo.username, &userInfo.username_length);
+    sprintf(userInfo.config_path, "C:\\Users\\%s\\AppData\\Local\\MinyEd\\config.lua", userInfo.username);
+}
+
+void setup() {
+    // on initial lanch create default config
+    userInfoInit();
+    printf( "no config file found\n\n"
+            "specify a path for your config file\n");
+    /* printf("%s\n", userInfo.username); */
+
+    /* char buffer[MAX_PATH] = {0}; */
+    /* char path[MAX_PATH]; */
+    sprintf(userInfo.config_path, "C:\\Users\\%s\\AppData\\Local\\MinyEd\\config.lua", userInfo.username);
+    /* fgets(buffer, MAX_PATH, stdin); */
+    printf("%s\n", userInfo.config_path);
+
+}
 void initConfig(void) {
     memset(&config, 0, sizeof(Config));
     lua_State *L = luaL_newstate();
     luaL_openlibs(L);
-    if(luaL_dofile(L, "config.lua") != LUA_OK) {
+    /* if(luaL_dofile(L, "config.lua") != LUA_OK) { */
+    if(luaL_dofile(L, userInfo.config_path) != LUA_OK) {
         fprintf(stderr, "no config file\n");
         luaL_error(L, lua_tostring(L, -1));
         ErrorExit("cannot read config file");
