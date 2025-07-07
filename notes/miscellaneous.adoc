@@ -1,0 +1,78 @@
+== Building
+=== shell
+- https://stackoverflow.com/questions/61754413/set-powershell-core-as-a-default-gnu-make-shell-on-windows-linux
+
+Installing mingw through chocolatey is the best option to get gcc up and working
+and using the c windows libraries
+
+== syntax
+
+if there is no arguments you should put void in stead of leaving arguments empty
+
+[source, c]
+----
+void
+readfile(void)
+{
+}
+----
+
+== Other
+When using the "\r\n" new line symbol for windows files, the `fread()` function
+does not read files correctly. However, the linux "\n" new line symbol works
+just fine. Maybe it's better to use windows "fileapi.h", when reading certain
+files on windows.
+
+== Links
+- https://stackoverflow.com/questions/23369503/get-size-of-terminal-window-rows-columns
+- https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+- https://stackoverflow.com/questions/41212646/get-key-press-in-windows-console
+- https://learn.microsoft.com/en-us/windows/console/readconsoleinput?redirectedfrom=MSDN
+- https://stackoverflow.com/questions/2347770/how-do-you-clear-the-console-screen-in-c
+- https://learn.microsoft.com/en-us/windows/win32/procthread/creating-threads
+- https://www.guidingtech.com/top-ways-to-force-quit-a-program-on-windows-11/
+- https://www.shellhacks.com/windows-grep-equivalent-cmd-powershell/
+- https://www.youtube.com/watch?v=p5-5uKTVx_w[creating a setup wizard]
+
+== Force Killing Program
+
+----
+tasklist | Select-String "jae"
+----
+
+----
+taskkill /pid 17320 /t /f
+----
+
+----
+taskkill /pid 17320 /t /f
+----
+
+== Future
+=== `HeapAlloc()`
+It might be benifitial to use the `HeapAlloc()` function instead of malloc in
+the future. It has a `HEAP_GENERATE_EXCEPTIONS` which will indicate a function
+failure instead of just returning *NULL*.
+
+== TODO
+- [ ] feature to use arrow to move up and down through lines.
+
+- [ ] Create draw back buffer. that everything gets writen to. It will be
+      updated in the while loop. The while loop will start with a clear scren.
+
+- [ ] Create a buffer for the left and right of curser that can shift text if
+      need be
+
+- [ ] Create a seperate thread for drawing to screen.
+
+- [X] Use lua to make a config file for the editor
+
+- [ ] Open file for buffer initializaItion. close after initialization. Open
+      buffer for file writing. close after writing. This way file content is intact
+      
+- [ ] Create a perminant open file for error logging
+
+- [ ] Make compatible with linux as well
+
+- [ ] make path for config different for windows and linux
+

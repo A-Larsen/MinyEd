@@ -1,0 +1,2 @@
+== MinEd (Minimalist Terminal Text Editor)
+

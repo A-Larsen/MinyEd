@@ -1,0 +1,5 @@
+bin/*.exe
+bin/*.obj
+src/lua5.4/
+src/libs/
+src/*.lib
