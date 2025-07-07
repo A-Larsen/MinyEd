@@ -1,4 +1,8 @@
 == Building
+
+=== Mingwh
+In order for mingw to work well I installed the *mingw* and *make* package with chocolatey
+
 === shell
 - https://stackoverflow.com/questions/61754413/set-powershell-core-as-a-default-gnu-make-shell-on-windows-linux
 
