@@ -1,6 +1,7 @@
-all: filedo minyed
 CC = gcc.exe
 LIBS = ./libs/lua54.lib
+
+all: filedo minyed
 
 filedo: filedo.c filedo_options.c
 	$(CC) $^ -g -Wall -o ..\bin\filedo
