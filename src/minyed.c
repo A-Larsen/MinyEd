@@ -1,9 +1,4 @@
 #include "editor.h"
-/* #include <dirent.h> */
-#include "Shlwapi.h"
-#include <stdio.h>
-
-
 
 int main(int argc, char **argv)
 {     

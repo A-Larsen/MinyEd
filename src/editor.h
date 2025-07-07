@@ -7,10 +7,10 @@
 #include <ctype.h>
 #include <share.h>
 #include <string.h>
+#include <Lmcons.h>
 #include "lua5.4/lua.h"
 #include "lua5.4/lauxlib.h"
 #include "lua5.4/lualib.h"
-#include <Lmcons.h>
 
 #define MAX_LINE_LENGTH 80
 #define LINE_SIZE 2048
