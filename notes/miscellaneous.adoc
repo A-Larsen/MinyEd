@@ -1,6 +1,6 @@
 == Building
 
-=== Mingwh
+=== Mingw
 In order for mingw to work well I installed the *mingw* and *make* package with chocolatey
 
 === shell
