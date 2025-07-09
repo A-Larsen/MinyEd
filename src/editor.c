@@ -1,8 +1,12 @@
 #include "editor.h"
 #include <stdint.h>
 
-static HANDLE hStdin;
-static DWORD fdwSaveOldMode;
+/* static HANDLE hStdin; */
+/* static TERM_IO(hStdin); */
+TERM_IO(hStdin);
+/* static DWORD fdwSaveOldMode; */
+static TERM fdwSaveOldMode;
+static TERM current_term;
 static int columns, rows;
 static Buffer *buffers = NULL;
 static Config config;
@@ -55,6 +59,7 @@ void initConfig(void) {
 }
 
 void initConsole() {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     CONSOLE_SCREEN_BUFFER_INFO csbi;
   
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
@@ -76,11 +81,42 @@ void initConsole() {
     fdwMode = ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
     if (! SetConsoleMode(hStdin, fdwMode) )
         ErrorExit("SetConsoleMode");
+#elif defined(__linux__)
+    struct winsize ws;
+    if(ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0){
+        /* if (WRITE("\e999C" "\e999B", 12) != 12) */ 
+        /*     return -1; */
+        /* return term_getCursorPosition(TERM_IO); */
+        ErrorExit("could not get terminal size");
+    }
+    rows = ws.ws_col;
+    columns = ws.ws_row;
+
+    if (tcgetattr(STDIN_FILENO, &fdwSaveOldMode)) {
+        /* term_die("tcgetattr failed"); */
+    }
+
+    /* atexit(term_disableRawMode); */
+    /* struct termios current_term; */
+
+    current_term = fdwSaveOldMode;
+    current_term.c_iflag &= !(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+    current_term.c_oflag &= ~(OPOST);
+    current_term.c_cflag |= (CS8);
+    current_term.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+    current_term.c_cc[VMIN] = 0;
+    current_term.c_cc[VTIME] = 1;
+
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &current_term)) {
+        /* term_die("tcsetattr failed"); */
+    }
+#endif
 }
 
-HANDLE getSTdinHandle() {
+TERM_IO() getSTdinHandle() {
     return hStdin;
 }
+
 
 void newlines(uint8_t bi, uint8_t count) {
     for (int i = buffers[bi].line_count; i < buffers[bi].line_count + count; ++i) {
@@ -93,7 +129,10 @@ void newlines(uint8_t bi, uint8_t count) {
 uint8_t writeToFile(uint8_t bi) {
     // TODO:
     // remove existing file before writing so that duplicate text isn't created.
-    FILE *fp = _fsopen(buffers[bi].filename, "w", _SH_DENYRD);
+    /* FILE *fp = _fsopen(buffers[bi].filename, "w", _SH_DENYRD); */
+    /* FILE *fp = fopen(buffers[bi].filename, "w"); */
+    FILE *fp = NULL;
+    FILE_WROPEN(fp, buffers[bi].filename);
     for (uint64_t i = 0; i < buffers[0].line_count; ++i) {
         int len = strlen(buffers[0].lines[i]);
         fwrite(buffers[0].lines[i], len, 1, fp);
@@ -107,7 +146,9 @@ uint8_t writeToFile(uint8_t bi) {
 void initBuffer(uint8_t bi, char *buffer_file) {
     Buffer *buffer = &buffers[bi];
     memcpy(buffer->filename, buffer_file, strlen(buffer_file));
-    FILE *fp = _fsopen(buffers[bi].filename, "a+", _SH_DENYRD);
+    /* FILE *fp = _fsopen(buffers[bi].filename, "a+", _SH_DENYRD); */
+    FILE *fp = NULL;
+    FILE_AOPEN(fp, buffers[bi].filename);
 
     if (fp == NULL) return;
         /* ErrorExit("cannot open file"); */
@@ -156,17 +197,19 @@ uint16_t getBufferLineCount(uint8_t bi) {
     return buffers[bi].line_count;
 }
 
-VOID Exit(void)
+void Exit(void)
 {
     printf("\e[1;1H\e[2J"); // clear screen
-    SetConsoleMode(hStdin, fdwSaveOldMode);
-    ExitProcess(0);
+    /* SetConsoleMode(hStdin, fdwSaveOldMode); */
+    TERM_SET(fdwSaveOldMode);
+    exit(0);
 }
 
-VOID ErrorExit (LPSTR lpszMessage)
+/* VOID ErrorExit (LPSTR lpszMessage) */
+void ErrorExit (char *message)
 {
     printf("\e[1;1H\e[2J"); // clear screen
-    fprintf(stderr, "%s\n", lpszMessage);
+    fprintf(stderr, "%s\n", message);
     Exit();
 }
 
@@ -186,7 +229,8 @@ void notifyUpdate(uint8_t bi, uint8_t *status) {
             break;
         }
     }
-    Sleep(1000);
+    /* Sleep(1000); */
+    SLEEP(1000);
     /* *status = 0; */
     printf("\e[0m"); // default colors
 
@@ -236,7 +280,7 @@ void wrapLine(uint8_t bi, int line_len) {
 void wrapLines(uint8_t bi) {
 
     Buffer *buffer = &buffers[bi];
-    printf("\n%llu\n", buffer->line_count);
+    printf("\n%lu\n", buffer->line_count);
     /* Sleep(1000); */
     /* return; */
 
@@ -349,50 +393,50 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
     return 0;
 }
 
-VOID MouseEventProc(MOUSE_EVENT_RECORD mer)
-{
-#ifndef MOUSE_HWHEELED
-#define MOUSE_HWHEELED 0x0008
-#endif
-    printf("Mouse event: ");
+/* void MouseEventProc(MOUSE_EVENT_RECORD mer) */
+/* { */
+/* #ifndef MOUSE_HWHEELED */
+/* #define MOUSE_HWHEELED 0x0008 */
+/* #endif */
+/*     printf("Mouse event: "); */
 
-    switch(mer.dwEventFlags)
-    {
-        case 0:
+/*     switch(mer.dwEventFlags) */
+/*     { */
+/*         case 0: */
 
-            if(mer.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED)
-            {
-                printf("left button press \n");
-            }
-            else if(mer.dwButtonState == RIGHTMOST_BUTTON_PRESSED)
-            {
-                printf("right button press \n");
-            }
-            else
-            {
-                printf("button press\n");
-            }
-            break;
-        case DOUBLE_CLICK:
-            printf("double click\n");
-            break;
-        case MOUSE_HWHEELED:
-            printf("horizontal mouse wheel\n");
-            break;
-        case MOUSE_MOVED:
-            printf("mouse moved\n");
-            break;
-        case MOUSE_WHEELED:
-            printf("vertical mouse wheel\n");
-            break;
-        default:
-            printf("unknown\n");
-            break;
-    }
-}
+/*             if(mer.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED) */
+/*             { */
+/*                 printf("left button press \n"); */
+/*             } */
+/*             else if(mer.dwButtonState == RIGHTMOST_BUTTON_PRESSED) */
+/*             { */
+/*                 printf("right button press \n"); */
+/*             } */
+/*             else */
+/*             { */
+/*                 printf("button press\n"); */
+/*             } */
+/*             break; */
+/*         case DOUBLE_CLICK: */
+/*             printf("double click\n"); */
+/*             break; */
+/*         case MOUSE_HWHEELED: */
+/*             printf("horizontal mouse wheel\n"); */
+/*             break; */
+/*         case MOUSE_MOVED: */
+/*             printf("mouse moved\n"); */
+/*             break; */
+/*         case MOUSE_WHEELED: */
+/*             printf("vertical mouse wheel\n"); */
+/*             break; */
+/*         default: */
+/*             printf("unknown\n"); */
+/*             break; */
+/*     } */
+/* } */
 
-VOID ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
-{
-    printf("Resize event\n");
-    printf("Console screen buffer is %d columns by %d rows.\n", wbsr.dwSize.X, wbsr.dwSize.Y);
-}
+/* void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr) */
+/* { */
+/*     printf("Resize event\n"); */
+/*     printf("Console screen buffer is %d columns by %d rows.\n", wbsr.dwSize.X, wbsr.dwSize.Y); */
+/* } */

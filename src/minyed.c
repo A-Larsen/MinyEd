@@ -5,8 +5,11 @@ int main(int argc, char **argv)
 
     initConsole();
     userInfoInit();
-    DWORD cNumRead, i;
-    INPUT_RECORD irInBuf[128];
+    /* DWORD cNumRead, i; */
+
+    /* uint64_t cNumRead, i; */
+    /* INPUT_RECORD irInBuf[128]; */
+    INIT_CONSOLE_DATA();
 
     printf("\e[1;1H\e[2J"); // clear screen
                             //
@@ -28,7 +31,8 @@ int main(int argc, char **argv)
 
     uint8_t dowhat = 0;
     bool first_input = false;
-    HANDLE hStdin = getSTdinHandle();
+    /* HANDLE hStdin = getSTdinHandle(); */
+    TERM_IO hStdin = getSTdinHandle();
 
     while (true)
     {
