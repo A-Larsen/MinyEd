@@ -1,9 +1,11 @@
 #include "editor.h"
 #include <stdint.h>
 
-/* static HANDLE hStdin; */
-/* static TERM_IO(hStdin); */
-TERM_IO(hStdin);
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+static HANDLE hStdin;
+#endif
+/* TERM_IO(hStdin); */
 /* static DWORD fdwSaveOldMode; */
 static TERM fdwSaveOldMode;
 static TERM current_term;
@@ -30,7 +32,8 @@ void userInfoInit() {
 #elif defined(__linux__)
     gethostname(userInfo.username, LIMIT_HOST_NAME_MAX);
     userInfo.username_length = strlen(userInfo.username);
-    sprintf(userInfo.config_path, "C:\\Users\\%s\\AppData\\Local\\MinyEd\\config.lua", userInfo.username);
+    memcpy(userInfo.config_path, "./config.lua\0", 13);
+    /* sprintf(userInfo.config_path, "config.lua", userInfo.username); */
 #endif
 }
 
@@ -95,8 +98,8 @@ void initConsole() {
         /* return term_getCursorPosition(TERM_IO); */
         ErrorExit("could not get terminal size");
     }
-    rows = ws.ws_col;
-    columns = ws.ws_row;
+    columns = ws.ws_col;
+    rows = ws.ws_row;
 
     if (tcgetattr(STDIN_FILENO, &fdwSaveOldMode)) {
         /* term_die("tcgetattr failed"); */
@@ -119,9 +122,11 @@ void initConsole() {
 #endif
 }
 
-TERM_IO() getSTdinHandle() {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+HANDLE getSTdinHandle() {
     return hStdin;
 }
+#endif
 
 
 void newlines(uint8_t bi, uint8_t count) {
@@ -328,7 +333,7 @@ void wrapLines(uint8_t bi) {
 // return
 //     Whatever is returned in this function detirms the next action that should
 //     be taken.
-uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
+uint8_t KeyEventProc(uint8_t bi, int keyCode)
 {
     Buffer *buffer = &buffers[bi];
     // up -> 38
@@ -341,9 +346,9 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
     // it might be more benifitial to eventually access the line length from anywhere
     int line_len = strlen(buffer->lines[buffer->current_line]);
 
-    int ch = ker.uChar.AsciiChar;
-    if (!ker.bKeyDown) return 0;
-    if (ker.wVirtualKeyCode == M_SHIFT) return 0;
+    /* int ch = ker.uChar.AsciiChar; */
+    /* if (!ker.bKeyDown) return 0; */
+    /* if (ker.wVirtualKeyCode == M_SHIFT) return 0; */
 
     /* if (modifiers[M_CONTROL].isActive && ker.wVirtualKeyCode == 0x56 ) // control-v */
     /*     wrapLines(bi); */
@@ -353,25 +358,25 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
         wrapLine(bi, line_len);
     } 
 
-    if (ker.wVirtualKeyCode == 38) {
-        buffer->current_line--;
-    } 
-    if (ker.wVirtualKeyCode == 13) { // enter
+    /* if (keyCode == 38) { */
+    /*     buffer->current_line--; */
+    /* } */ 
+    if (keyCode == 13) { // enter
         buffer->lines[buffer->current_line][buffer->cursor_pos] = '\n';
         newlines(bi, 1);
         buffer->current_line++;
         buffer->cursor_pos = 0;
-    } else if (ker.wVirtualKeyCode == 8) { //backspace
+    } else if (keyCode == 8) { //backspace
         // TODO:
         // change when cursor position is not at the end of the line
         int len = strlen(buffer->lines[buffer->current_line]);
     buffer->lines[buffer->current_line][len - 1] = '\0';
         buffer->cursor_pos--;
-    } else if (modifiers[M_CONTROL].isActive && ker.wVirtualKeyCode == 87 ) { // control-w
-        return 1;
-    } else if (modifiers[M_CONTROL].isActive && ker.wVirtualKeyCode == 0x43 ) { // control-c
-        Exit();
-    } else if (isalpha(ch) || isspace(ch) || ispunct(ch)){ // print character
+    /* } else if (modifiers[M_CONTROL].isActive && ker.wVirtualKeyCode == 87 ) { // control-w */
+    /*     return 1; */
+    /* } else if (modifiers[M_CONTROL].isActive && ker.wVirtualKeyCode == 0x43 ) { // control-c */
+    /*     Exit(); */
+    } else if (isalpha(keyCode) || isspace(keyCode) || ispunct(keyCode)){ // print character
         /* char *line = lines[current_line]; */
         if (buffer->cursor_pos < line_len - 1) {
             // In this case shift everything to the right of the cursor pos. The
@@ -391,8 +396,8 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
 
             
         }
-        buffer->lines[buffer->current_line][buffer->cursor_pos] = ch;
-        previous_ch = ch;
+        buffer->lines[buffer->current_line][buffer->cursor_pos] = keyCode;
+        previous_ch = keyCode;
         buffer->cursor_pos++;
     } 
 

@@ -9,10 +9,12 @@
 #define FILE_WROPEN(fp, f) fp = _fsopen(f, "w", _SH_DENYRD);
 #define FILE_AOPEN(fp, f) fp = _fsopen(f, "a+", _SH_DENYRD);
 #define SLEEP(a) Sleep(a);
-#define TERM_IO(n) HANDLE n
+/* #define TERM_IO(n) HANDLE n */
 #define TERM DWORD
 #define TERM_SET(m) SetConsoleMode(hStdin, m);
 #define TERM_READ()
+#define TEMR_READ(fd,buf, count, r) ReadConsoleInput(fd, buf, count, &r)
+#define TERM_PROCESS(proc) switch(irInBuf[i].EventType) { case KEY_EVENT:{proc; break; } }
 #elif defined(__linux__)
 #include <termios.h>
 #include <sys/ioctl.h>
@@ -20,15 +22,14 @@
 #include <limits.h>
 #define LIMIT_PATH_MAX PATH_MAX
 #define LIMIT_HOST_NAME_MAX HOST_NAME_MAX
-#define INIT_CONSOLE_DATA() \
-   int nread; \
-   char c;
 #define FILE_WROPEN(fp, f) fp = fopen(f, "w");
 #define FILE_AOPEN(fp, f) fp = fopen(f, "a+");
 #define SLEEP(a) sleep(a);
-#define TERM_IO(n) struct termios n
+/* #define TERM_IO(n) struct termios n */
 #define TERM struct termios
 #define TERM_SET(m) tcsetattr(STDIN_FILENO, TCSAFLUSH, &m)
+#define TERM_READ(fd,buf, count, r) (r = read(STDIN_FILENO, buf, count))
+#define TERM_PROCESS(proc) 
 #endif
 #include <stdlib.h>
 #include <stdio.h>
@@ -59,7 +60,6 @@ typedef struct _UserInfo {
     char username[LIMIT_HOST_NAME_MAX];
     /* DWORD username_length; */
     uint64_t username_length;
-#endif
     char config_path[LIMIT_PATH_MAX];
 } UserInfo;
 
@@ -96,7 +96,8 @@ void Exit(void);
 /* void ErrorExit(long *message); */
 void ErrorExit (char *messgae);
 void initBuffer(uint8_t bi, char *buffer_file);
-uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker);
+uint8_t KeyEventProc(uint8_t bi, int keyCode);
+/* uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker); */
 /* void MouseEventProc(MOUSE_EVENT_RECORD); */
 uint8_t newBuffer(char *buffer_file);
 void newlines(uint8_t bi, uint8_t count);
@@ -106,7 +107,11 @@ int runtime(int argc, char **argv);
 uint8_t writeToFile(uint8_t i);
 void writeToBuffer(uint8_t bi, uint64_t line, char *text, uint16_t len);
 void initConsole();
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 HANDLE getSTdinHandle();
+#endif
+
 Modifier *getModifier(enum e_modifiers);
 void initConfig(void);
 void userInfoInit();
