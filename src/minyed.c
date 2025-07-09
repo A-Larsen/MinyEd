@@ -7,9 +7,9 @@ int main(int argc, char **argv)
     userInfoInit();
     /* DWORD cNumRead, i; */
 
-    /* uint64_t cNumRead, i; */
-    /* INPUT_RECORD irInBuf[128]; */
-    INIT_CONSOLE_DATA();
+    uint64_t cNumRead, i;
+    INPUT_RECORD irInBuf[128];
+    /* INIT_CONSOLE_DATA(); */
 
     printf("\e[1;1H\e[2J"); // clear screen
                             //

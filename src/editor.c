@@ -23,9 +23,15 @@ Modifier *getModifier(enum e_modifiers i) {
 }
 
 void userInfoInit() {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     userInfo.username_length = UNLEN + 1;
     GetUserName(userInfo.username, &userInfo.username_length);
     sprintf(userInfo.config_path, "C:\\Users\\%s\\AppData\\Local\\MinyEd\\config.lua", userInfo.username);
+#elif defined(__linux__)
+    gethostname(userInfo.username, LIMIT_HOST_NAME_MAX);
+    userInfo.username_length = strlen(userInfo.username);
+    sprintf(userInfo.config_path, "C:\\Users\\%s\\AppData\\Local\\MinyEd\\config.lua", userInfo.username);
+#endif
 }
 
 void setup() {

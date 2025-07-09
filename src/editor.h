@@ -6,15 +6,13 @@
 #include <Lmcons.h>
 #define LIMIT_PATH_MAX MAX_PATH
 #define LIMIT_HOST_NAME_MAX UNLEN+1
-#define INIT_CONSOLE_DATA() \
-    INPUT_RECORD irInBuf[128]; \
-    uint64_t cNumRead, i;
 #define FILE_WROPEN(fp, f) fp = _fsopen(f, "w", _SH_DENYRD);
 #define FILE_AOPEN(fp, f) fp = _fsopen(f, "a+", _SH_DENYRD);
 #define SLEEP(a) Sleep(a);
 #define TERM_IO(n) HANDLE n
 #define TERM DWORD
 #define TERM_SET(m) SetConsoleMode(hStdin, m);
+#define TERM_READ()
 #elif defined(__linux__)
 #include <termios.h>
 #include <sys/ioctl.h>
@@ -60,7 +58,7 @@ typedef struct _Buffer {
 typedef struct _UserInfo {
     char username[LIMIT_HOST_NAME_MAX];
     /* DWORD username_length; */
-    uint64_t usernam_length;
+    uint64_t username_length;
 #endif
     char config_path[LIMIT_PATH_MAX];
 } UserInfo;
