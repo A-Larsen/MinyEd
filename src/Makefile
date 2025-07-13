@@ -1,5 +1,5 @@
 CC = gcc.exe
-LIBS = ./libs/lua54.lib
+LIBS = ./libs/lua54.lib -lgdi32
 
 all: filedo minyed
 

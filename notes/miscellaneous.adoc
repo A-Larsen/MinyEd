@@ -81,4 +81,4 @@ failure instead of just returning *NULL*.
 
 - [ ] make path for config different for windows and linux
 
-- [ ] https://stackoverflow.com/questions/1937163/drawing-in-a-win32-console-on-c#13221775[change method of drawing to terminal (escape sequences suck)]
+- [ ] Use winGDI for popup windows and notifications
