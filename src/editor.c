@@ -311,7 +311,7 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
         newlines(bi, 1);
         buffer->current_line++;
         buffer->cursor_pos = 0;
-    } else if (ker.wVirtualKeyCode == 8) { //backspace
+    } else if (ker.wVirtualKeyCode == 8 && (buffer->cursor_pos - 1) >= 0) { //backspace
         // TODO:
         // wrap the next line to the line before it if need be
         int len = strlen(buffer->lines[buffer->current_line]);
