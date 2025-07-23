@@ -313,10 +313,12 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
         buffer->cursor_pos = 0;
     } else if (ker.wVirtualKeyCode == 8) { //backspace
         // TODO:
-        // change when cursor position is not at the end of the line
+        // wrap the next line to the line before it if need be
         int len = strlen(buffer->lines[buffer->current_line]);
-    buffer->lines[buffer->current_line][len - 1] = '\0';
-        buffer->cursor_pos--;
+        for (int i = (--buffer->cursor_pos); i < len; ++i) {
+            buffer->lines[buffer->current_line][i] = buffer->lines[buffer->current_line][i + 1];
+        }
+
     } else if (modifiers[M_CONTROL].isActive && ker.wVirtualKeyCode == 87 ) { // control-w
         return 1;
     } else if (modifiers[M_CONTROL].isActive && ker.wVirtualKeyCode == 0x43 ) { // control-c
