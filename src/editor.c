@@ -303,7 +303,7 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
         wrapLine(bi, line_len);
     } 
 
-    if (ker.wVirtualKeyCode == 38) {
+    if (ker.wVirtualKeyCode == 38) { // up arrow
         buffer->current_line--;
     } 
     if (ker.wVirtualKeyCode == 13) { // enter
@@ -311,9 +311,13 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
         newlines(bi, 1);
         buffer->current_line++;
         buffer->cursor_pos = 0;
-    } else if (ker.wVirtualKeyCode == 8 && (buffer->cursor_pos - 1) >= 0) { //backspace
+    } else if (ker.wVirtualKeyCode == 8) { //backspace
         // TODO:
         // wrap the next line to the line before it if need be
+        if (buffer->cursor_pos - 1 < 0) {
+            buffer->current_line--;
+            buffer->cursor_pos = strlen(buffer->lines[buffer->current_line]);
+        }
         int len = strlen(buffer->lines[buffer->current_line]);
         for (int i = (--buffer->cursor_pos); i < len; ++i) {
             buffer->lines[buffer->current_line][i] = buffer->lines[buffer->current_line][i + 1];
