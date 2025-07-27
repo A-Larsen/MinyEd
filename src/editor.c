@@ -104,8 +104,8 @@ uint8_t writeToFile(uint8_t bi) {
     FILE *fp = _fsopen(buffers[bi].filename, "w", _SH_DENYRD);
     for (uint64_t i = 0; i < buffers[0].line_count; ++i) {
         int len = strlen(buffers[0].lines[i]);
-        buffers[bi].lines[i][len] = '\n';
-        fwrite(buffers[bi].lines[i], len + 1, 1, fp);
+        fwrite(buffers[bi].lines[i], len, 1, fp);
+        fwrite("\n", 1, 1, fp);
     }
     fclose(fp);
 
@@ -328,12 +328,6 @@ void moveVertical(Buffer *buffer, int *line_len, bool upOrDown) {
     *line_len = strlen(buffer->lines[buffer->current_line]);
     if (buffer->cursor_pos >= *line_len) buffer->cursor_pos = *line_len;
 }
-
-/* static void moveUp(Buffer *buffer, int *line_len) { */
-/*     buffer->current_line--; */
-/*     *line_len = strlen(buffer->lines[buffer->current_line]); */
-/*     if (buffer->cursor_pos >= *line_len) buffer->cursor_pos = *line_len; */
-/* } */
 
 // @ker
 //     A key even record from an event stream
