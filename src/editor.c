@@ -363,7 +363,7 @@ void moveVertical(Buffer *buffer, int *line_len, bool upOrDown) {
 // return
 //     Whatever is returned in this function detirms the next action that should
 //     be taken.
-uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
+void KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
 {
     Buffer *buffer = &buffers[bi];
     static int word_wrap_pos;
@@ -373,8 +373,8 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
     int line_len = strlen(buffer->lines[buffer->current_line]);
 
     int ch = ker.uChar.AsciiChar;
-    if (!ker.bKeyDown) return 0;
-    if (ker.wVirtualKeyCode == M_SHIFT) return 0;
+    if (!ker.bKeyDown) return;
+    if (ker.wVirtualKeyCode == M_SHIFT) return;
 
 
     if (buffer->cursor_pos >= MAX_LINE_LENGTH && config.word_wrap) { // word wrap
@@ -429,25 +429,20 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
         }
 
         case 'R' : { // reload buffer
-
-            if (modifiers[M_CONTROL].isActive) reloadBuffer(bi);
-            break;
+            if (modifiers[M_CONTROL].isActive) {reloadBuffer(bi); break;}
         }
+
         case 'W': {
-            if (modifiers[M_CONTROL].isActive) return 1;
-            break;
+            if (modifiers[M_CONTROL].isActive) {writeToFile(bi); break;}
         }
 
         case 'C': {
             if (modifiers[M_CONTROL].isActive) Exit();
-            break;
         }
 
         default: writePrintableCharacters(bi, ch, &previous_ch, line_len); break;
 
     }
-
-    return 0;
 }
 
 VOID MouseEventProc(MOUSE_EVENT_RECORD mer)

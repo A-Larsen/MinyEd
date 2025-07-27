@@ -26,7 +26,6 @@ int main(int argc, char **argv)
 
     newBuffer(argv[1]);
 
-    uint8_t dowhat = 0;
     bool first_input = false;
     HANDLE hStdin = getSTdinHandle();
 
@@ -43,9 +42,6 @@ int main(int argc, char **argv)
 
         // Dispatch the events to the appropriate handler.
         // a dowhat activity can return a id for a status to display
-        switch(dowhat) {
-            case 1: {writeToFile(0); break;}
-        }
         notifyUpdate(0);
 
         for (i = 0; i < cNumRead; i++)
@@ -58,7 +54,7 @@ int main(int argc, char **argv)
                             if (irInBuf[i].Event.KeyEvent.wVirtualKeyCode == mod->keycode)
                             mod->isActive = irInBuf[i].Event.KeyEvent.bKeyDown;
                         }
-                        dowhat = KeyEventProc(0, irInBuf[i].Event.KeyEvent);
+                        KeyEventProc(0, irInBuf[i].Event.KeyEvent);
                         break;
                     }
 
