@@ -38,13 +38,6 @@ enum e_modifiers { M_CONTROL, M_ALT, M_SHIFT, MODIFIERS_COUNT };
 
 enum e_configInitErrors { CONFIG_INIT_OK, CONFIG_INIT_CANNOT_READ_CONFIG };
 
-/* enum e_virtualKeys { */ 
-/*     KEY_UP = 38, */
-/*     KEY_DOWN = 40, */
-/*     KEY_LEFT = 37, */
-/*     KEY_RIGHT = 39 */
-/* }; */
-
 typedef struct _Modifier {
     uint8_t keycode;
     bool isActive;

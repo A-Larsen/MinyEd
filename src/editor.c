@@ -5,6 +5,10 @@
 // - Fix line wrapping
 //
 // - Fix extra spaces in buffer after saving a file
+//
+// - Stop the wrong status from showing up on file reload
+//
+// - Make statis variable global to this file 
 #include "editor.h"
 #include <stdint.h>
 
@@ -113,7 +117,8 @@ uint8_t writeToFile(uint8_t bi) {
     return 1;
 }
 
-void initBuffer(uint8_t bi, char *buffer_file) {
+void initBuffer(uint8_t bi, char buffer_file[MAX_PATH]) {
+    // clear buffer and then write to it
     Buffer *buffer = &buffers[bi];
     memcpy(buffer->filename, buffer_file, strlen(buffer_file));
     FILE *fp = _fsopen(buffers[bi].filename, "a+", _SH_DENYRD);
@@ -134,7 +139,7 @@ void initBuffer(uint8_t bi, char *buffer_file) {
     fclose(fp);
 }
 
-uint8_t newBuffer(char *buffer_file) {
+uint8_t newBuffer(char buffer_file[MAX_PATH]) {
     static uint8_t count = 0;
     buffers = (Buffer *)malloc(sizeof(Buffer));
     buffers[count].line_count = 0;
@@ -146,6 +151,20 @@ uint8_t newBuffer(char *buffer_file) {
     initBuffer(count, buffer_file);
     count++;
     return count - 1;
+}
+
+void reloadBuffer(uint8_t bi)  {
+    char filename[MAX_PATH];
+    memset(filename, 0, MAX_PATH);
+    memcpy(filename, buffers[bi].filename, MAX_PATH);
+    for (int i = 0; i < buffers[bi].line_count; ++i) {
+        free((void *)buffers[bi].lines[i]);
+        buffers[bi].lines[i] = NULL;
+    }
+    buffers[bi].line_count = 0;
+    buffers[bi].current_line = 0;
+    newlines(bi, 1);
+    initBuffer(bi, filename);
 }
 
 void writeToBuffer(uint8_t bi, uint64_t line, char *text, uint16_t len) {
@@ -197,7 +216,6 @@ void notifyUpdate(uint8_t bi, uint8_t *status) {
         }
     }
     Sleep(1000);
-    /* *status = 0; */
     printf("\e[0m"); // default colors
 
 }
@@ -399,7 +417,10 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
             break;
         }
 
+        case 'R' : { // reload buffer
 
+            if (modifiers[M_CONTROL].isActive) reloadBuffer(bi);
+        }
         case 'W': {
             if (modifiers[M_CONTROL].isActive) return 1;
         }
