@@ -1,3 +1,6 @@
+// TODO
+// - fix what happens when writing at the end of a line before a previous one and
+//   the new line escape sequence being removed
 #include "editor.h"
 #include <stdint.h>
 
@@ -216,6 +219,8 @@ void drawUpdate(uint8_t bi) {
 }
 
 void wrapLine(uint8_t bi, int line_len) {
+    // TODO
+    // have word wrap remove trailing spaces at the end of a line
     Buffer *buffer = &buffers[bi];
     while (buffer->lines[buffer->current_line][line_len] != ' ') line_len--;
         char *word = buffers->lines[buffer->current_line] + line_len + 1;
@@ -273,62 +278,11 @@ void wrapLines(uint8_t bi) {
     }
 }
 
-// @ker
-//     A key even record from an event stream
-// return
-//     Whatever is returned in this function detirms the next action that should
-//     be taken.
-uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
-{
+void writePrintableCharacters(uint8_t bi, int ch, int *previous_ch, int line_len) {
+
     Buffer *buffer = &buffers[bi];
-    // up -> 38
-    // down -> 40
-    // right -> 39
-    // left -> 37
-    static int word_wrap_pos;
-    static int previous_ch = 0;
-
-    // it might be more benifitial to eventually access the line length from anywhere
-    int line_len = strlen(buffer->lines[buffer->current_line]);
-
-    int ch = ker.uChar.AsciiChar;
-    if (!ker.bKeyDown) return 0;
-    if (ker.wVirtualKeyCode == M_SHIFT) return 0;
-
-    /* if (modifiers[M_CONTROL].isActive && ker.wVirtualKeyCode == 0x56 ) // control-v */
-    /*     wrapLines(bi); */
-
-
-    if (buffer->cursor_pos >= MAX_LINE_LENGTH && config.word_wrap) { // word wrap
-        wrapLine(bi, line_len);
-    } 
-
-    if (ker.wVirtualKeyCode == 38) { // up arrow
-        buffer->current_line--;
-    } 
-    if (ker.wVirtualKeyCode == 13) { // enter
-        buffer->lines[buffer->current_line][buffer->cursor_pos] = '\n';
-        newlines(bi, 1);
-        buffer->current_line++;
-        buffer->cursor_pos = 0;
-    } else if (ker.wVirtualKeyCode == 8) { //backspace
-        // TODO:
-        // wrap the next line to the line before it if need be
-        if (buffer->cursor_pos - 1 < 0) {
-            buffer->current_line--;
-            buffer->cursor_pos = strlen(buffer->lines[buffer->current_line]);
-        }
-        int len = strlen(buffer->lines[buffer->current_line]);
-        for (int i = (--buffer->cursor_pos); i < len; ++i) {
-            buffer->lines[buffer->current_line][i] = buffer->lines[buffer->current_line][i + 1];
-        }
-
-    } else if (modifiers[M_CONTROL].isActive && ker.wVirtualKeyCode == 87 ) { // control-w
-        return 1;
-    } else if (modifiers[M_CONTROL].isActive && ker.wVirtualKeyCode == 0x43 ) { // control-c
-        Exit();
-    } else if (isalpha(ch) || isspace(ch) || ispunct(ch)){ // print character
-        /* char *line = lines[current_line]; */
+     if (isalpha(ch) || isspace(ch) || ispunct(ch)) {
+    /* char *line = lines[current_line]; */
         if (buffer->cursor_pos < line_len - 1) {
             // In this case shift everything to the right of the cursor pos. The
             // action might shift over to multiple lines if word wrap is on
@@ -344,13 +298,108 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
 
                 }
             }
-
             
         }
         buffer->lines[buffer->current_line][buffer->cursor_pos] = ch;
-        previous_ch = ch;
+        *previous_ch = ch;
+            
         buffer->cursor_pos++;
+
+     }
+}
+
+// TODO
+// may need work
+static void moveVertical(Buffer *buffer, int *line_len, bool upOrDown) {
+    buffer->current_line = buffer->current_line + (upOrDown ? -1 : 1);
+    *line_len = strlen(buffer->lines[buffer->current_line]);
+    if (buffer->cursor_pos >= *line_len) buffer->cursor_pos = *line_len;
+}
+
+/* static void moveUp(Buffer *buffer, int *line_len) { */
+/*     buffer->current_line--; */
+/*     *line_len = strlen(buffer->lines[buffer->current_line]); */
+/*     if (buffer->cursor_pos >= *line_len) buffer->cursor_pos = *line_len; */
+/* } */
+
+// @ker
+//     A key even record from an event stream
+// return
+//     Whatever is returned in this function detirms the next action that should
+//     be taken.
+uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
+{
+    Buffer *buffer = &buffers[bi];
+    static int word_wrap_pos;
+    static int previous_ch = 0;
+
+    // it might be more benifitial to eventually access the line length from anywhere
+    int line_len = strlen(buffer->lines[buffer->current_line]);
+
+    int ch = ker.uChar.AsciiChar;
+    if (!ker.bKeyDown) return 0;
+    if (ker.wVirtualKeyCode == M_SHIFT) return 0;
+
+
+    if (buffer->cursor_pos >= MAX_LINE_LENGTH && config.word_wrap) { // word wrap
+        wrapLine(bi, line_len);
     } 
+
+    // handle virtual keys
+    switch (ker.wVirtualKeyCode) {
+
+        case KEY_ENTER: {
+            buffer->lines[buffer->current_line][buffer->cursor_pos] = '\n';
+            newlines(bi, 1);
+            buffer->current_line++;
+            buffer->cursor_pos = 0;
+            break;
+        }
+        // TODO
+        // When doing cursor moving remember to do some bounds checking
+        case KEY_LEFT: {
+            if (buffer->cursor_pos > 0) buffer->cursor_pos--;
+            break;
+        }
+
+        case KEY_RIGHT: {
+            // line_len - 1 to adjust for the newline symbol
+            if (buffer->cursor_pos < line_len) buffer->cursor_pos++;
+            break;
+        }
+
+        case KEY_DOWN: {moveVertical(buffer, &line_len, false); break;}
+
+        case KEY_UP: {moveVertical(buffer, &line_len, true); break; }
+
+        case KEY_BACKSPACE: {
+            // TODO:
+            // wrap the next line to the line before it if need be
+            /* if ((buffer->cursor_pos - 1) < 0) { */
+            /*     buffer->current_line--; */
+            /*     buffer->cursor_pos = strlen(buffer->lines[buffer->current_line]); */
+            /* } */
+            if (buffer->cursor_pos - 1 < 0) break;
+            int len = strlen(buffer->lines[buffer->current_line]);
+            for (int i = (--buffer->cursor_pos); i < len; ++i) {
+                buffer->lines[buffer->current_line][i] = buffer->lines[buffer->current_line][i + 1];
+            }
+
+            break;
+        }
+
+
+        case KEY_W: {
+            if (modifiers[M_CONTROL].isActive) return 1;
+        }
+
+        case KEY_C: {
+            if (modifiers[M_CONTROL].isActive) Exit();
+        }
+
+        default: writePrintableCharacters(bi, ch, &previous_ch, line_len); break;
+
+    }
 
     return 0;
 }

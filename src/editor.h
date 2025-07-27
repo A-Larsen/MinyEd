@@ -16,6 +16,16 @@
 #define MAX_LINE_LENGTH 80
 #define LINE_SIZE 2048
 
+/// Virtual Keys
+#define KEY_UP 38
+#define KEY_DOWN 40
+#define KEY_LEFT 37
+#define KEY_RIGHT 39
+#define KEY_ENTER 13
+#define KEY_BACKSPACE 8
+#define KEY_W 87
+#define KEY_C 0x43
+
 typedef struct _Config {
     bool word_wrap;
 } Config;
@@ -37,6 +47,13 @@ typedef struct _UserInfo {
 enum e_modifiers { M_CONTROL, M_ALT, M_SHIFT, MODIFIERS_COUNT };
 
 enum e_configInitErrors { CONFIG_INIT_OK, CONFIG_INIT_CANNOT_READ_CONFIG };
+
+/* enum e_virtualKeys { */ 
+/*     KEY_UP = 38, */
+/*     KEY_DOWN = 40, */
+/*     KEY_LEFT = 37, */
+/*     KEY_RIGHT = 39 */
+/* }; */
 
 typedef struct _Modifier {
     uint8_t keycode;
