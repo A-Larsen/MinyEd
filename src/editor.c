@@ -3,6 +3,8 @@
 //   the new line escape sequence being removed
 //
 // - Fix line wrapping
+//
+// - Fix extra spaces in buffer after saving a file
 #include "editor.h"
 #include <stdint.h>
 
@@ -314,8 +316,15 @@ void writePrintableCharacters(uint8_t bi, int ch, int *previous_ch, int line_len
 
 // TODO
 // may need work
-static void moveVertical(Buffer *buffer, int *line_len, bool upOrDown) {
-    buffer->current_line = buffer->current_line + (upOrDown ? -1 : 1);
+void moveVertical(Buffer *buffer, int *line_len, bool upOrDown) {
+    if (upOrDown) {
+        if (buffer->current_line + 1 >= buffer->line_count) return;
+        buffer->current_line++;
+    } else {
+        if (buffer->current_line <= 0) return;
+        buffer->current_line--;
+    }
+    
     *line_len = strlen(buffer->lines[buffer->current_line]);
     if (buffer->cursor_pos >= *line_len) buffer->cursor_pos = *line_len;
 }
@@ -372,9 +381,10 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
             break;
         }
 
-        case KEY_DOWN: {moveVertical(buffer, &line_len, false); break;}
+        case KEY_UP: {moveVertical(buffer, &line_len, false); break; }
 
-        case KEY_UP: {moveVertical(buffer, &line_len, true); break; }
+        case KEY_DOWN: {moveVertical(buffer, &line_len, true); break;}
+
 
         case KEY_BACKSPACE: {
             // TODO:
