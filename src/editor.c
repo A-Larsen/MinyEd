@@ -100,7 +100,8 @@ uint8_t writeToFile(uint8_t bi) {
     FILE *fp = _fsopen(buffers[bi].filename, "w", _SH_DENYRD);
     for (uint64_t i = 0; i < buffers[0].line_count; ++i) {
         int len = strlen(buffers[0].lines[i]);
-        fwrite(buffers[0].lines[i], len, 1, fp);
+        buffers[bi].lines[i][len] = '\n';
+        fwrite(buffers[bi].lines[i], len + 1, 1, fp);
     }
     fclose(fp);
 
@@ -120,7 +121,8 @@ void initBuffer(uint8_t bi, char *buffer_file) {
     uint64_t i = 0;
     while(fgets(line, LINE_SIZE, fp) != NULL) {
         uint16_t len = strlen(line);
-        memcpy(buffers[0].lines[i], line, len);
+        /* if (buffers[bi].lines[i][len - 1] == '\n') len--; */
+        memcpy(buffers[bi].lines[i], line, len - 1);
         newlines(bi, 1);
         buffers[bi].cursor_pos = len;
         i++;
@@ -203,7 +205,7 @@ void drawUpdate(uint8_t bi) {
     Buffer *buffer = &buffers[bi];
                             //
     for (int i = 0; i < buffer->line_count; ++i) {
-        printf("%s", buffer->lines[i]);
+        printf("%s\n", buffer->lines[i]);
     }
     printf("\e[42m"); // background green
     printf("\e[30m"); // foreground black
@@ -230,7 +232,7 @@ void wrapLine(uint8_t bi, int line_len) {
         char *p = buffer->lines[buffer->current_line];
         int word_len = strlen(word);
         memcpy(p, word, word_len);
-        buffer->lines[buffer->current_line - 1][line_len] = '\n';
+        buffer->lines[buffer->current_line - 1][line_len] = '\0';
         char *p2 = buffers[0].lines[buffer->current_line - 1] + line_len + 1;
         memset(p2, 0, strlen(p2));
         buffer->cursor_pos = word_len;
@@ -349,7 +351,7 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
     switch (ker.wVirtualKeyCode) {
 
         case KEY_ENTER: {
-            buffer->lines[buffer->current_line][buffer->cursor_pos] = '\n';
+            /* buffer->lines[buffer->current_line][buffer->cursor_pos] = '\n'; */
             newlines(bi, 1);
             buffer->current_line++;
             buffer->cursor_pos = 0;
