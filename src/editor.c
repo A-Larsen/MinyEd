@@ -19,6 +19,7 @@ static Buffer *buffers = NULL;
 static Config config;
 static UserInfo userInfo;
 static HDC screen_context;
+static uint8_t status_id = 0;
 
 static Modifier modifiers[MODIFIERS_COUNT] = {
     [M_CONTROL] =  {.keycode = 17, .isActive = false} ,// control
@@ -102,7 +103,7 @@ void newlines(uint8_t bi, uint8_t count) {
     buffers[bi].line_count += count;
 }
 
-uint8_t writeToFile(uint8_t bi) {
+void writeToFile(uint8_t bi) {
     // TODO:
     // remove existing file before writing so that duplicate text isn't created.
     FILE *fp = _fsopen(buffers[bi].filename, "w", _SH_DENYRD);
@@ -112,9 +113,8 @@ uint8_t writeToFile(uint8_t bi) {
         fwrite("\n", 1, 1, fp);
     }
     fclose(fp);
-
+    status_id = 1;
     // return a  status to display after a file write
-    return 1;
 }
 
 void initBuffer(uint8_t bi, char buffer_file[MAX_PATH]) {
@@ -130,7 +130,7 @@ void initBuffer(uint8_t bi, char buffer_file[MAX_PATH]) {
     uint64_t i = 0;
     while(fgets(line, LINE_SIZE, fp) != NULL) {
         uint16_t len = strlen(line);
-        /* if (buffers[bi].lines[i][len - 1] == '\n') len--; */
+        // I subtract 1 from len so I don't copy the newline sequence
         memcpy(buffers[bi].lines[i], line, len - 1);
         newlines(bi, 1);
         buffers[bi].cursor_pos = len;
@@ -165,6 +165,7 @@ void reloadBuffer(uint8_t bi)  {
     buffers[bi].current_line = 0;
     newlines(bi, 1);
     initBuffer(bi, filename);
+    status_id = 2;
 }
 
 void writeToBuffer(uint8_t bi, uint64_t line, char *text, uint16_t len) {
@@ -199,13 +200,13 @@ VOID ErrorExit (LPSTR lpszMessage)
     Exit();
 }
 
-void notifyUpdate(uint8_t bi, uint8_t *status) {
-    if (*status == 0) return;
+void notifyUpdate(uint8_t bi) {
 
+    if (!status_id) return;
     printf("\e[42m"); // background green
     printf("\e[30m"); // foreground black
 
-    switch(*status) {
+    switch(status_id) {
         case 1: {
             char buffer[225];
             sprintf(buffer, "wrote to file: \"\e[34m%s\e[30m\"", buffers[bi].filename);
@@ -214,8 +215,18 @@ void notifyUpdate(uint8_t bi, uint8_t *status) {
             printf("%s", buffer);
             break;
         }
+
+        case 2: {
+            char buffer[225];
+            sprintf(buffer, "reloaded buffer: \"\e[34m%s\e[30m\"", buffers[bi].filename);
+            uint16_t len = strlen(buffer);
+            printf("\e[%d;%dH", 1 , columns - len - 1);
+            printf("%s", buffer);
+            break;
+        }
     }
     Sleep(1000);
+    status_id = 0;
     printf("\e[0m"); // default colors
 
 }
