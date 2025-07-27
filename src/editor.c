@@ -206,7 +206,7 @@ void notifyUpdate(uint8_t bi) {
     printf("\e[42m"); // background green
     printf("\e[30m"); // foreground black
 
-    switch(status_id) {
+    switch (status_id) {
         case 1: {
             char buffer[225];
             sprintf(buffer, "wrote to file: \"\e[34m%s\e[30m\"", buffers[bi].filename);
@@ -225,10 +225,10 @@ void notifyUpdate(uint8_t bi) {
             break;
         }
     }
-    Sleep(1000);
-    status_id = 0;
-    printf("\e[0m"); // default colors
 
+    Sleep(1000);
+    printf("\e[0m"); // default colors
+    status_id = 0;
 }
 
 void drawUpdate(uint8_t bi) {
@@ -431,13 +431,16 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
         case 'R' : { // reload buffer
 
             if (modifiers[M_CONTROL].isActive) reloadBuffer(bi);
+            break;
         }
         case 'W': {
             if (modifiers[M_CONTROL].isActive) return 1;
+            break;
         }
 
         case 'C': {
             if (modifiers[M_CONTROL].isActive) Exit();
+            break;
         }
 
         default: writePrintableCharacters(bi, ch, &previous_ch, line_len); break;
