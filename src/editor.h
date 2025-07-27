@@ -16,16 +16,6 @@
 #define MAX_LINE_LENGTH 80
 #define LINE_SIZE 2048
 
-/// Virtual Keys
-#define KEY_UP 38
-#define KEY_DOWN 40
-#define KEY_LEFT 37
-#define KEY_RIGHT 39
-#define KEY_ENTER 13
-#define KEY_BACKSPACE 8
-#define KEY_W 87
-#define KEY_C 0x43
-
 typedef struct _Config {
     bool word_wrap;
 } Config;

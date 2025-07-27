@@ -352,10 +352,13 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
         wrapLine(bi, line_len);
     } 
 
+    // TODO 
+    // instead of having perminate keys for each action have a mutal 'key'
+    // for each action.
     // handle virtual keys
     switch (ker.wVirtualKeyCode) {
 
-        case KEY_ENTER: {
+        case VK_RETURN: {
             /* buffer->lines[buffer->current_line][buffer->cursor_pos] = '\n'; */
             newlines(bi, 1);
             buffer->current_line++;
@@ -364,23 +367,23 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
         }
         // TODO
         // When doing cursor moving remember to do some bounds checking
-        case KEY_LEFT: {
+        case VK_LEFT: {
             if (buffer->cursor_pos > 0) buffer->cursor_pos--;
             break;
         }
 
-        case KEY_RIGHT: {
+        case VK_RIGHT: {
             // line_len - 1 to adjust for the newline symbol
             if (buffer->cursor_pos < line_len) buffer->cursor_pos++;
             break;
         }
 
-        case KEY_UP: {moveVertical(buffer, &line_len, false); break; }
+        case VK_UP: {moveVertical(buffer, &line_len, false); break; }
 
-        case KEY_DOWN: {moveVertical(buffer, &line_len, true); break;}
+        case VK_DOWN: {moveVertical(buffer, &line_len, true); break;}
 
 
-        case KEY_BACKSPACE: {
+        case VK_BACK: {
             // TODO:
             // wrap the next line to the line before it if need be
             /* if ((buffer->cursor_pos - 1) < 0) { */
@@ -397,11 +400,11 @@ uint8_t KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
         }
 
 
-        case KEY_W: {
+        case 'W': {
             if (modifiers[M_CONTROL].isActive) return 1;
         }
 
-        case KEY_C: {
+        case 'C': {
             if (modifiers[M_CONTROL].isActive) Exit();
         }
 

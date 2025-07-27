@@ -45,7 +45,7 @@ int main(int argc, char **argv)
         // Dispatch the events to the appropriate handler.
         // a dowhat activity can return a id for a status to display
         switch(dowhat) {
-            case 1: {status = writeToFile(0); break;};
+            case 1: {status = writeToFile(0); break;}
         }
         notifyUpdate(0, &status);
 
