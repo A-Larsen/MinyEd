@@ -38,6 +38,7 @@ files on windows.
 - https://www.shellhacks.com/windows-grep-equivalent-cmd-powershell/
 - https://www.youtube.com/watch?v=p5-5uKTVx_w[creating a setup wizard]
 - https://stackoverflow.com/questions/11587426/get-current-username-in-c-on-windows
+- https://visualgdb.com/gdbreference/commands/set_new-console[seperate console for gdb]
 
 == Force Killing Program
 
