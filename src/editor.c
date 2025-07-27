@@ -1,6 +1,8 @@
 // TODO
-// - fix what happens when writing at the end of a line before a previous one and
+// - Fix what happens when writing at the end of a line before a previous one and
 //   the new line escape sequence being removed
+//
+// - Fix line wrapping
 #include "editor.h"
 #include <stdint.h>
 
