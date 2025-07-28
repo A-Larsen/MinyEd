@@ -351,7 +351,8 @@ void writePrintableCharacters(uint8_t bi, int ch, int *previous_ch, int line_len
 
 // TODO
 // may need work
-void moveVertical(Buffer *buffer, int *line_len, bool upOrDown) {
+void moveVertical(uint8_t bi, int *line_len, bool upOrDown) {
+    Buffer *buffer = &buffers[bi];
     if (upOrDown) {
         if (buffer->current_line + 1 >= buffer->line_count) return;
         buffer->current_line++;
@@ -413,9 +414,9 @@ void KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
             break;
         }
 
-        case VK_UP: {moveVertical(buffer, &line_len, false); break; }
+        case VK_UP: {moveVertical(bi, &line_len, false); break; }
 
-        case VK_DOWN: {moveVertical(buffer, &line_len, true); break;}
+        case VK_DOWN: {moveVertical(bi, &line_len, true); break;}
 
 
         case VK_BACK: {
