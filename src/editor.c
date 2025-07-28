@@ -451,6 +451,17 @@ void KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
             }
         }
 
+        case 'P' : { // previous buffer
+            if (modifiers[M_CONTROL].isActive) {
+                if (current_buffer_id - 1 >= 0 ) {
+                    current_buffer_id--; 
+                } else {
+                    current_buffer_id = buffer_count - 1;
+                }
+                break;
+            }
+        }
+
         case 'R' : { // reload buffer
             if (modifiers[M_CONTROL].isActive) {reloadBuffer(bi); break;}
         }
