@@ -216,7 +216,7 @@ VOID ErrorExit (LPSTR lpszMessage)
 
 void notifyUpdate(uint8_t bi) {
 
-    if (!status_id) return;
+    if (status_id == STAT_NONE) return;
     printf("\e[42m"); // background green
     printf("\e[30m"); // foreground black
 
