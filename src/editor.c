@@ -15,6 +15,8 @@
 // - modal option (like vim). This would work with the config file. instead of
 //   keys being in switch for the key processing it should be variables that can
 //   be changed to any key
+//
+// - stop reload buffer from missing one character when there is no new line
 #include "editor.h"
 #include <stdint.h>
 
@@ -316,7 +318,8 @@ void wrapLines(uint8_t bi) {
             uint16_t bt = line_len;
             while (buffer->lines[i][bt] != ' ') bt--;
             bt += 1;
-            char *word = buffers->lines[i] + bt;
+            /* char *word = buffers->lines[i] + bt; */
+            char *word = buffer->lines[i] + bt;
             word_len = strlen(word);
         }
 

@@ -61,7 +61,7 @@ int main(int argc, char **argv)
                             if (irInBuf[i].Event.KeyEvent.wVirtualKeyCode == mod->keycode)
                             mod->isActive = irInBuf[i].Event.KeyEvent.bKeyDown;
                         }
-                        KeyEventProc(0, irInBuf[i].Event.KeyEvent);
+                        KeyEventProc(current_buffer_id, irInBuf[i].Event.KeyEvent);
                         break;
                     }
 
