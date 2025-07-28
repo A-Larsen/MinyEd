@@ -221,8 +221,6 @@ void notifyUpdate(uint8_t bi) {
     printf("\e[30m"); // foreground black
 
     switch (status_id) {
-        // TODO
-        // make constant variables, enum, or preprocessor for numerical values
         case STAT_FILE_WRITE: {
             char buffer[225];
             sprintf(buffer, "wrote to file: \"\e[34m%s\e[30m\"", buffers[bi].filename);
