@@ -129,7 +129,7 @@ void initBuffer(uint8_t bi, char buffer_file[MAX_PATH]) {
     // clear buffer and then write to it
     Buffer *buffer = &buffers[bi];
     memcpy(buffer->filename, buffer_file, strlen(buffer_file));
-    FILE *fp = _fsopen(buffers[bi].filename, "a+", _SH_DENYRD);
+    FILE *fp = _fsopen(buffer->filename, "a+", _SH_DENYRD);
 
     if (fp == NULL) return;
         /* ErrorExit("cannot open file"); */
@@ -138,10 +138,11 @@ void initBuffer(uint8_t bi, char buffer_file[MAX_PATH]) {
     uint64_t i = 0;
     while(fgets(line, LINE_SIZE, fp) != NULL) {
         uint16_t len = strlen(line);
-        // I subtract 1 from len so I don't copy the newline sequence
-        memcpy(buffers[bi].lines[i], line, len - 1);
+        uint16_t lencpy = len;
+        if (strstr(line, "\n")) lencpy--;
+        memcpy(buffer->lines[i], line, lencpy);
         newlines(bi, 1);
-        buffers[bi].cursor_pos = len;
+        buffer->cursor_pos = len;
         i++;
     }
     fclose(fp);
@@ -220,6 +221,8 @@ void notifyUpdate(uint8_t bi) {
     printf("\e[30m"); // foreground black
 
     switch (status_id) {
+        // TODO
+        // make constant variables, enum, or preprocessor for numerical values
         case 1: {
             char buffer[225];
             sprintf(buffer, "wrote to file: \"\e[34m%s\e[30m\"", buffers[bi].filename);
@@ -357,8 +360,6 @@ void writePrintableCharacters(uint8_t bi, int ch, int *previous_ch, int line_len
      }
 }
 
-// TODO
-// may need work
 void moveVertical(uint8_t bi, int *line_len, bool upOrDown) {
     Buffer *buffer = &buffers[bi];
     if (upOrDown) {
