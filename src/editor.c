@@ -223,7 +223,7 @@ void notifyUpdate(uint8_t bi) {
     switch (status_id) {
         // TODO
         // make constant variables, enum, or preprocessor for numerical values
-        case 1: {
+        case STAT_FILE_WRITE: {
             char buffer[225];
             sprintf(buffer, "wrote to file: \"\e[34m%s\e[30m\"", buffers[bi].filename);
             uint16_t len = strlen(buffer);
@@ -232,7 +232,7 @@ void notifyUpdate(uint8_t bi) {
             break;
         }
 
-        case 2: {
+        case STAT_BUFFER_RELOAD: {
             char buffer[225];
             sprintf(buffer, "reloaded buffer: \"\e[34m%s\e[30m\"", buffers[bi].filename);
             uint16_t len = strlen(buffer);
