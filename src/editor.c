@@ -6,9 +6,15 @@
 //
 // - Fix extra spaces in buffer after saving a file
 //
-// - Stop the wrong status from showing up on file reload
+// - only redraw what the areas that need redrawing. not everything
 //
-// - Make statis variable global to this file 
+// - change buffers feature
+//
+// - highlight text feature
+//
+// - modal option (like vim). This would work with the config file. instead of
+//   keys being in switch for the key processing it should be variables that can
+//   be changed to any key
 #include "editor.h"
 #include <stdint.h>
 
