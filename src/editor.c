@@ -160,6 +160,7 @@ uint8_t newBuffer(char buffer_file[MAX_PATH]) {
 }
 
 void reloadBuffer(uint8_t bi)  {
+    printf("\e[1;1H\e[2J"); // clear screen
     char filename[MAX_PATH];
     memset(filename, 0, MAX_PATH);
     memcpy(filename, buffers[bi].filename, MAX_PATH);
