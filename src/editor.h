@@ -38,7 +38,7 @@ enum e_modifiers { M_CONTROL, M_ALT, M_SHIFT, MODIFIERS_COUNT };
 
 enum e_configInitErrors { CONFIG_INIT_OK, CONFIG_INIT_CANNOT_READ_CONFIG };
 
-enum e_status {STAT_FILE_WRITE = 1, STAT_BUFFER_RELOAD};
+enum e_status {STAT_NONE, STAT_FILE_WRITE, STAT_BUFFER_RELOAD};
 
 typedef struct _Modifier {
     uint8_t keycode;

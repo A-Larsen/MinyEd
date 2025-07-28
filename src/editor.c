@@ -27,7 +27,7 @@ static Buffer *buffers = NULL;
 static Config config;
 static UserInfo userInfo;
 static HDC screen_context;
-static uint8_t status_id = 0;
+static uint8_t status_id = STAT_NONE;
 
 static Modifier modifiers[MODIFIERS_COUNT] = {
     [M_CONTROL] =  {.keycode = 17, .isActive = false} ,// control
@@ -121,7 +121,7 @@ void writeToFile(uint8_t bi) {
         fwrite("\n", 1, 1, fp);
     }
     fclose(fp);
-    status_id = 1;
+    status_id = STAT_FILE_WRITE;
     // return a  status to display after a file write
 }
 
@@ -179,7 +179,7 @@ void reloadBuffer(uint8_t bi)  {
     buffers[bi].current_line = 0;
     newlines(bi, 1);
     initBuffer(bi, filename);
-    status_id = 2;
+    status_id = STAT_BUFFER_RELOAD;
 }
 
 void writeToBuffer(uint8_t bi, uint64_t line, char *text, uint16_t len) {
@@ -242,7 +242,7 @@ void notifyUpdate(uint8_t bi) {
 
     Sleep(1000);
     printf("\e[0m"); // default colors
-    status_id = 0;
+    status_id = STAT_NONE;
 }
 
 void drawUpdate(uint8_t bi) {
