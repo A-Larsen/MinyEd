@@ -147,7 +147,11 @@ void initBuffer(uint8_t bi, char buffer_file[MAX_PATH]) {
 
 uint8_t newBuffer(char buffer_file[MAX_PATH]) {
     static uint8_t count = 0;
-    buffers = (Buffer *)malloc(sizeof(Buffer));
+    if (buffers == NULL) {
+        buffers = (Buffer *)malloc(sizeof(Buffer));
+    } else {
+        buffers = (Buffer *)realloc(buffers, sizeof(Buffer) * (count + 1));
+    }
     buffers[count].line_count = 0;
     buffers[count].current_line = 0;
     if (buffers == NULL) {
@@ -434,6 +438,17 @@ void KeyEventProc(uint8_t bi, KEY_EVENT_RECORD ker)
             }
 
             break;
+        }
+
+        case 'N' : { // next buffer
+            if (modifiers[M_CONTROL].isActive) {
+                if (current_buffer_id + 1 < buffer_count) {
+                    current_buffer_id++; 
+                } else {
+                    current_buffer_id = 0;
+                }
+                break;
+            }
         }
 
         case 'R' : { // reload buffer

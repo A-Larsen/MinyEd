@@ -58,6 +58,8 @@ typedef struct _rt_variables {
     Buffer *buffers;
 } rt_variables;
 
+extern uint8_t current_buffer_id;
+extern uint8_t buffer_count;
 
 void drawUpdate(uint8_t bi);
 char * getBufferLine(uint8_t bi, uint64_t line);

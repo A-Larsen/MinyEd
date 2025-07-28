@@ -1,4 +1,8 @@
 #include "editor.h"
+#include <stdint.h>
+
+uint8_t current_buffer_id = 0;
+uint8_t buffer_count = 0;
 
 int main(int argc, char **argv)
 {     
@@ -24,7 +28,10 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    newBuffer(argv[1]);
+    buffer_count = argc - 1;
+    for (int i = 0; i < buffer_count; ++i) {
+        newBuffer(argv[i + 1]);
+    }
 
     bool first_input = false;
     HANDLE hStdin = getSTdinHandle();
@@ -42,7 +49,7 @@ int main(int argc, char **argv)
 
         // Dispatch the events to the appropriate handler.
         // a dowhat activity can return a id for a status to display
-        notifyUpdate(0);
+        notifyUpdate(current_buffer_id);
 
         for (i = 0; i < cNumRead; i++)
         {
@@ -76,7 +83,7 @@ int main(int argc, char **argv)
                     break;
             }
         }
-        drawUpdate(0);
+        drawUpdate(current_buffer_id);
     }
 
     Exit();
