@@ -112,12 +112,13 @@ void newlines(uint8_t bi, uint8_t count) {
 }
 
 void writeToFile(uint8_t bi) {
+    Buffer *buffer = &buffers[bi];
     // TODO:
     // remove existing file before writing so that duplicate text isn't created.
-    FILE *fp = _fsopen(buffers[bi].filename, "w", _SH_DENYRD);
-    for (uint64_t i = 0; i < buffers[0].line_count; ++i) {
-        int len = strlen(buffers[0].lines[i]);
-        fwrite(buffers[bi].lines[i], len, 1, fp);
+    FILE *fp = _fsopen(buffer->filename, "w", _SH_DENYRD);
+    for (uint64_t i = 0; i < buffer->line_count; ++i) {
+        int len = strlen(buffer->lines[i]);
+        fwrite(buffer->lines[i], len, 1, fp);
         fwrite("\n", 1, 1, fp);
     }
     fclose(fp);
